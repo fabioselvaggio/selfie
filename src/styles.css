@@ -37,6 +37,8 @@
   --muted: #e7e3dc;
   --muted-dark: #d6d0c6;
   --card: #ffffff;
+  /* Riempimento della scheda attiva nella barra in basso. */
+  --tab-tint: #ffddcc;
 
   --r-sm: 12px;
   --r-md: 16px;
@@ -571,11 +573,15 @@ p {
 }
 
 .tab .glyph {
-  font-size: 21px;
-  line-height: 1;
-  filter: grayscale(1);
-  opacity: 0.5;
-  transition: all 0.2s var(--spring);
+  display: block;
+  line-height: 0;
+  transition: transform 0.22s var(--spring);
+}
+
+.tab .glyph svg {
+  width: 26px;
+  height: 26px;
+  display: block;
 }
 
 .tab.active {
@@ -583,9 +589,7 @@ p {
 }
 
 .tab.active .glyph {
-  filter: none;
-  opacity: 1;
-  transform: scale(1.15) translateY(-1px);
+  transform: scale(1.12) translateY(-1px);
 }
 
 /* ------------------------------------------------------------- overlay */

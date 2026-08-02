@@ -11,15 +11,16 @@ import { TimelapseScreen } from './screens/TimelapseScreen'
 import { AchievementsScreen } from './screens/AchievementsScreen'
 import { SettingsSheet } from './screens/SettingsSheet'
 import { Celebration } from './components/Celebration'
+import { IconBadges, IconCalendar, IconToday, IconVideo } from './components/TabIcons'
 import type { DayKey } from './lib/dates'
 
 type Tab = 'today' | 'calendar' | 'timelapse' | 'badges'
 
-const TABS: Array<{ id: Tab; glyph: string; label: string }> = [
-  { id: 'today', glyph: '📸', label: 'Oggi' },
-  { id: 'calendar', glyph: '📅', label: 'Calendario' },
-  { id: 'timelapse', glyph: '🎬', label: 'Video' },
-  { id: 'badges', glyph: '🏆', label: 'Traguardi' },
+const TABS: Array<{ id: Tab; Icon: (p: { active?: boolean }) => JSX.Element; label: string }> = [
+  { id: 'today', Icon: IconToday, label: 'Oggi' },
+  { id: 'calendar', Icon: IconCalendar, label: 'Calendario' },
+  { id: 'timelapse', Icon: IconVideo, label: 'Video' },
+  { id: 'badges', Icon: IconBadges, label: 'Traguardi' },
 ]
 
 type Overlay =
@@ -97,7 +98,9 @@ function Shell() {
             className={tab === t.id ? 'tab active' : 'tab'}
             onClick={() => setTab(t.id)}
           >
-            <span className="glyph">{t.glyph}</span>
+            <span className="glyph">
+              <t.Icon active={tab === t.id} />
+            </span>
             {t.label}
           </button>
         ))}

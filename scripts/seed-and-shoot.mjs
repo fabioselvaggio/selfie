@@ -99,31 +99,36 @@ console.log(`  Popolati ${seeded} giorni.`)
 await page.reload({ waitUntil: 'domcontentloaded' })
 await page.waitForTimeout(1500)
 
+// Le schede si cliccano per posizione: getByRole cerca il nome accessibile per
+// sottostringa, e "Oggi" pescherebbe anche "Scatta il selfie di oggi".
+const TAB = { oggi: 0, calendario: 1, video: 2, traguardi: 3 }
+const openTab = (name) => page.locator('.tabbar .tab').nth(TAB[name]).click()
+
 const shots = [
   { name: '1-oggi', run: async () => {} },
   {
     name: '2-calendario',
     run: async () => {
-      await page.getByRole('button', { name: 'Calendario' }).click()
+      await openTab('calendario')
     },
   },
   {
     name: '3-timelapse',
     run: async () => {
-      await page.getByRole('button', { name: 'Video' }).click()
+      await openTab('video')
       await page.waitForTimeout(2500)
     },
   },
   {
     name: '4-traguardi',
     run: async () => {
-      await page.getByRole('button', { name: 'Traguardi' }).click()
+      await openTab('traguardi')
     },
   },
   {
     name: '5-dettaglio-giorno',
     run: async () => {
-      await page.getByRole('button', { name: 'Calendario' }).click()
+      await openTab('calendario')
       await page.locator('.cal-cell.filled').first().click()
       await page.waitForTimeout(600)
     },
