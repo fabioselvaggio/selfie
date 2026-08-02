@@ -10,6 +10,11 @@ mentre cambia tutto il resto: la luce, i capelli, lo sfondo, tu.
 
 **→ https://fabioselvaggio.github.io/selfie/**
 
+> **Da fare una volta sola**, se il link dà 404: su GitHub, *Settings → Pages →
+> Build and deployment → Source: **GitHub Actions***. Poi *Actions → Deploy su
+> GitHub Pages → Re-run jobs*. Il token di Actions non può accendere Pages da
+> solo, è l'unico passaggio manuale.
+
 Aprila dal telefono e aggiungila alla schermata Home: parte a tutto schermo,
 senza barre del browser, come un'app vera.
 
