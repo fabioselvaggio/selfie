@@ -1,0 +1,13 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# Immagini di test scaricate a runtime: non vanno nel repo.
+public/__test__/
+
+# Runtime wasm e modello MediaPipe (~25 MB): li rigenera `npm run setup`.
+public/mp/
+
+# Artefatti di build TypeScript
+*.tsbuildinfo
