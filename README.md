@@ -21,9 +21,9 @@ senza barre del browser, come un'app vera.
 - **iPhone** — Safari → tasto Condividi → *Aggiungi a Home*
 - **Android** — Chrome → menu ⋮ → *Installa app*
 
-Al primo avvio scarica ~4 MB di modello per il riconoscimento del viso, poi
-funziona anche offline. Le foto restano sul telefono: non passano da nessun
-server, nemmeno il mio.
+Al primo avvio scarica ~4 MB di modello per il riconoscimento del viso. Da lì in
+poi funziona **senza connessione**, anche al primo riavvio. Le foto restano sul
+telefono: non passano da nessun server, nemmeno il mio.
 
 ![prova dell'allineamento](docs/alignment-proof.jpg)
 
@@ -114,6 +114,48 @@ misura si può fare solo su un archivio reale.
 - **Timelapse** — riproduzione, confronto allineato ↔ grezzo, export WebM reale
 - **Traguardi** — badge a 3, 7, 14, 30, 60, 100, 200, 365 giorni
 - **Impostazioni** — ora di fine giornata, peso della bocca, alta precisione, riallineamento di tutto l'archivio
+
+### Si comporta da app, non da pagina web
+
+Tre cose devono valere insieme, e ne basta una fuori posto per rimettere in moto
+tutta la pagina e portarsi via la barra in basso:
+
+1. il documento non scorre mai — `html`/`body` con altezza fissa e `overflow: hidden`
+2. il guscio è alto quanto lo schermo — `height`, non `min-height`
+3. l'area contenuto può rimpicciolirsi — `min-height: 0` sul flex item
+
+Il terzo è quello che sfugge: di default un flex item non scende sotto la
+dimensione del proprio contenuto, quindi `overflow-y: auto` non ha mai
+un'altezza da cui partire e il contenitore cresce invece di far scorrere. Per lo
+stesso motivo i figli dell'area contenuto hanno `flex-shrink: 0`, altrimenti su
+schermi bassi la cornice 4:5 si schiaccia invece di uscire dallo schermo.
+
+Il resto: `overscroll-behavior` per togliere il rimbalzo elastico ai bordi,
+`env(safe-area-inset-*)` per notch e barra Home, `100dvh` per la barra di Safari
+che compare e scompare.
+
+### Offline
+
+`public/sw.js` è un service worker scritto a mano — quattro regole, si leggono
+in una schermata:
+
+| cosa | strategia | perché |
+|---|---|---|
+| guscio (html, JS, CSS, font, icone) | precarico all'installazione | elenco generato in fase di build da `vite.config.ts` |
+| navigazioni | prima la rete, poi la cache | un nuovo deploy si vede subito, ma offline l'app si apre |
+| `assets/`, `mp/`, `.wasm`, `.task` | prima la cache | l'URL contiene l'hash: il contenuto non cambia mai |
+| resto della stessa origine | cache, aggiornando in background | |
+
+L'elenco generato in build non è un dettaglio: i nomi dei file contengono un
+hash e il worker non può indovinarli. Senza, al primo caricamento il worker si
+attiva quando JS e CSS sono già stati scaricati dalla rete — quindi non passano
+da lui e l'app funzionerebbe offline solo dalla **seconda** visita.
+
+Modello del viso e runtime wasm restano fuori dal precarico: sarebbero 25 MB
+scaricati prima ancora di vedere l'app, e delle due varianti wasm il browser ne
+usa una sola. Entrano in cache al primo uso. La cache del guscio è legata al
+build, quella di MediaPipe no: un rideploy non deve costringere a riscaricare
+15 MB.
 
 ### Scelte di prodotto non ovvie
 

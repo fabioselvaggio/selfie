@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useStore } from '../store'
+import { isIos, isStandalone, promptInstall, useCanInstall } from '../lib/pwa'
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, updateSettings, realignAll, wipe, photos } = useStore()
   const [busy, setBusy] = useState<string | null>(null)
+  const canInstall = useCanInstall()
+  const installed = isStandalone()
 
   const rerun = async () => {
     setBusy('0 / ' + photos.length)
@@ -22,6 +25,43 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="screen">
+        {!installed && (
+          <>
+            <div className="muted">APP</div>
+            <div className="card">
+              {canInstall ? (
+                <>
+                  <div className="row-label">Installa sul telefono</div>
+                  <div className="row-sub" style={{ marginBottom: 12 }}>
+                    Parte a tutto schermo, senza barre del browser, e funziona anche senza
+                    connessione.
+                  </div>
+                  <button className="btn small" onClick={() => void promptInstall()}>
+                    Installa
+                  </button>
+                </>
+              ) : isIos() ? (
+                <>
+                  <div className="row-label">Aggiungila alla Home</div>
+                  <div className="row-sub">
+                    Safari non ha un tasto di installazione: premi <strong>Condividi</strong> in
+                    basso, poi <strong>Aggiungi a Home</strong>. Da lì parte a tutto schermo e
+                    funziona anche offline.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="row-label">Installala</div>
+                  <div className="row-sub">
+                    Dal menu del browser scegli <strong>Installa app</strong>. Parte a tutto
+                    schermo e funziona anche senza connessione.
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
+
         <div className="muted">PROMEMORIA</div>
         <div className="card">
           <div className="row">

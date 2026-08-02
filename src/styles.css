@@ -53,36 +53,55 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/*
+ * Impalcatura di un'app, non di una pagina.
+ *
+ * A scorrere deve essere SOLO il contenuto: la barra in basso resta incollata.
+ * Perché funzioni servono tre cose insieme, e ne basta una fuori posto per
+ * rimettere in moto tutta la pagina:
+ *   1. il documento non scorre mai      → html/body con height fissa e overflow hidden
+ *   2. il guscio è alto quanto lo schermo → height, non min-height
+ *   3. l'area contenuto può rimpicciolirsi → min-height: 0 sul flex item
+ * Il punto 3 è quello che sfugge: di default un flex item non scende sotto la
+ * dimensione del proprio contenuto, quindi `overflow-y: auto` non ha mai una
+ * altezza da cui partire e il contenitore cresce invece di far scorrere.
+ */
 html,
 body {
+  height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
   background: #efeae3;
   color: var(--ink);
   font-family: Nunito, ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
   font-weight: 700;
+  /* Niente rimbalzo elastico ai bordi: tradisce subito "è una pagina web". */
   overscroll-behavior: none;
 }
 
 #root {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  /* dvh segue la barra di Safari che compare e scompare; vh sopra è il ripiego. */
+  height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: stretch;
+  overflow: hidden;
 }
 
 /* Guscio telefono: a schermo pieno su mobile, "device" centrato su desktop. */
 .shell {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
   background: var(--bg);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  /* Notch e isola dinamica quando gira come app installata. */
+  padding-top: env(safe-area-inset-top);
 }
 
 @media (min-width: 480px) {
@@ -91,8 +110,8 @@ body {
     padding: 24px 0;
   }
   .shell {
-    min-height: 880px;
-    height: 880px;
+    /* Su finestre basse il "telefono" si accorcia invece di uscire dallo schermo. */
+    height: min(880px, 100dvh - 48px);
     border-radius: 40px;
     box-shadow:
       0 0 0 10px #1c1917,
@@ -101,14 +120,26 @@ body {
 }
 
 .screen {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  /* Arrivato in fondo, lo scorrimento non si propaga al documento. */
+  overscroll-behavior: contain;
   padding: 16px 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+/*
+ * Su schermi bassi la colonna comprimeva i figli invece di far scorrere: la
+ * cornice 4:5 del selfie si schiacciava e la foto veniva fuori sbagliata.
+ * In un contenitore che scorre i figli tengono la loro altezza naturale.
+ */
+.screen > * {
+  flex-shrink: 0;
 }
 
 .screen::-webkit-scrollbar {
@@ -601,6 +632,9 @@ p {
   z-index: 30;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  /* I pannelli coprono tutto il guscio, quindi il notch se lo gestiscono da sé. */
+  padding-top: env(safe-area-inset-top);
   animation: slide-up 0.28s var(--spring);
 }
 
@@ -642,7 +676,8 @@ p {
 /* ------------------------------------------------------------- camera */
 
 .viewfinder {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
   position: relative;
   background: #000;
   overflow: hidden;
