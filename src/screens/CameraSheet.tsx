@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { TARGET_EYE_Y, detectFace, evaluateGuide, type GuideState } from '../lib/faceAlign'
+import { IconCamera, IconClose, IconTimer } from '../components/icons'
 
 /**
  * Fotocamera con guida live.
@@ -123,7 +124,7 @@ export function CameraSheet({
     <div className="sheet dark">
       <div className="sheet-head">
         <button className="icon-btn" style={{ color: '#fff' }} onClick={onClose} aria-label="Chiudi">
-          ✕
+          <IconClose />
         </button>
         <strong style={{ fontSize: 15 }}>Selfie di oggi</strong>
         <button
@@ -132,14 +133,14 @@ export function CameraSheet({
           onClick={() => setUseTimer((v) => !v)}
           aria-label="Timer"
         >
-          ⏱
+          <IconTimer />
         </button>
       </div>
 
       <div className="viewfinder">
         {error ? (
           <div className="empty-state" style={{ color: '#fff' }}>
-            <div style={{ fontSize: 44 }}>📷</div>
+            <IconCamera style={{ width: 46, height: 46 }} />
             <h2 style={{ color: '#fff' }}>Fotocamera non disponibile</h2>
             <p style={{ color: '#a1a1aa' }}>{error}</p>
           </div>

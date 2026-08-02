@@ -114,21 +114,23 @@ export function computeStreak(days: DayKey[], today: DayKey): StreakInfo {
 
 // ---------------------------------------------------------------- traguardi
 
+import type { BadgeIconName } from '../components/icons'
+
 export interface Badge {
   days: number
   label: string
-  emoji: string
+  icon: BadgeIconName
 }
 
 export const BADGES: Badge[] = [
-  { days: 3, label: 'Si comincia', emoji: '🌱' },
-  { days: 7, label: 'Una settimana', emoji: '🔥' },
-  { days: 14, label: 'Due settimane', emoji: '⚡️' },
-  { days: 30, label: 'Un mese', emoji: '🌙' },
-  { days: 60, label: 'Due mesi', emoji: '💪' },
-  { days: 100, label: 'Cento giorni', emoji: '💎' },
-  { days: 200, label: 'Duecento', emoji: '👑' },
-  { days: 365, label: 'Un anno intero', emoji: '🏆' },
+  { days: 3, label: 'Si comincia', icon: 'sprout' },
+  { days: 7, label: 'Una settimana', icon: 'flame' },
+  { days: 14, label: 'Due settimane', icon: 'bolt' },
+  { days: 30, label: 'Un mese', icon: 'moon' },
+  { days: 60, label: 'Due mesi', icon: 'peak' },
+  { days: 100, label: 'Cento giorni', icon: 'gem' },
+  { days: 200, label: 'Duecento', icon: 'crown' },
+  { days: 365, label: 'Un anno intero', icon: 'trophy' },
 ]
 
 export function nextBadge(best: number): Badge | null {

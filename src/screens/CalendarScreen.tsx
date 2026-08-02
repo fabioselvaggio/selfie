@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { monthName, toDayKey, type DayKey } from '../lib/dates'
 import { useStore } from '../store'
+import { IconChevronLeft, IconChevronRight } from '../components/icons'
 
 const DOW = ['L', 'M', 'M', 'G', 'V', 'S', 'D']
 
@@ -59,7 +60,7 @@ export function CalendarScreen({ onOpenDay }: { onOpenDay: (day: DayKey) => void
 
       <div className="cal-head">
         <button className="icon-btn" onClick={() => shift(-1)} aria-label="Mese precedente">
-          ‹
+          <IconChevronLeft />
         </button>
         <h2>
           {monthName(cursor.m)} {cursor.y}
@@ -68,10 +69,9 @@ export function CalendarScreen({ onOpenDay }: { onOpenDay: (day: DayKey) => void
           className="icon-btn"
           onClick={() => shift(1)}
           disabled={isCurrentMonth}
-          style={{ opacity: isCurrentMonth ? 0.25 : 1 }}
           aria-label="Mese successivo"
         >
-          ›
+          <IconChevronRight />
         </button>
       </div>
 

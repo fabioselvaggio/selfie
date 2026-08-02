@@ -3,6 +3,7 @@ import { FRAME_H, FRAME_W } from '../lib/faceAlign'
 import { addDays, formatDay } from '../lib/dates'
 import { loadImage } from '../lib/image'
 import { useStore } from '../store'
+import { IconExport, IconPause, IconPlay, IconVideo } from '../components/icons'
 
 const SPEEDS = [
   { label: 'Lento', fps: 4 },
@@ -168,7 +169,7 @@ export function TimelapseScreen() {
     return (
       <div className="screen">
         <div className="empty-state">
-          <div style={{ fontSize: 54 }}>🎬</div>
+          <IconVideo style={{ width: 56, height: 56, color: 'var(--ink-faint)' }} />
           <h2>Ancora niente da montare</h2>
           <p>Scatta qualche selfie, o importane un po’ dalla galleria. Poi torna qui.</p>
         </div>
@@ -204,7 +205,8 @@ export function TimelapseScreen() {
 
       <div className="btn-row">
         <button className="btn ghost small" style={{ flex: 1 }} onClick={() => setPlaying((p) => !p)}>
-          {playing ? '⏸ Pausa' : '▶ Play'}
+          {playing ? <IconPause className="inline-icon" /> : <IconPlay className="inline-icon" />}
+          {playing ? 'Pausa' : 'Play'}
         </button>
         <button className="btn ghost small" style={{ flex: 1 }} onClick={() => setAligned((a) => !a)}>
           {aligned ? 'Vedi grezzo' : 'Vedi allineato'}
@@ -262,6 +264,7 @@ export function TimelapseScreen() {
       </div>
 
       <button className="btn" onClick={exportVideo} disabled={recording || loaded < frames.length}>
+        {!recording && <IconExport className="inline-icon" />}
         {recording ? 'Registro…' : 'Esporta video'}
       </button>
 

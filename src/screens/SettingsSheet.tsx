@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useStore } from '../store'
 import { isIos, isStandalone, promptInstall, useCanInstall } from '../lib/pwa'
+import { IconCamera, IconClose } from '../components/icons'
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, updateSettings, realignAll, wipe, photos } = useStore()
@@ -18,7 +19,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
     <div className="sheet">
       <div className="sheet-head">
         <button className="icon-btn" onClick={onClose} aria-label="Chiudi">
-          ✕
+          <IconClose />
         </button>
         <strong style={{ fontSize: 15 }}>Impostazioni</strong>
         <span style={{ width: 34 }} />
@@ -89,7 +90,9 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
         {settings.reminderEnabled && (
           <div className="notif">
-            <div className="app-icon">📸</div>
+            <div className="app-icon">
+              <IconCamera />
+            </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 900 }}>OGGI</div>
               <div style={{ fontSize: 13, fontWeight: 700 }}>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BADGES } from '../lib/dates'
+import { BadgeIcon, IconCloudySun, IconFlame } from './icons'
 
 const COLORS = ['#FF6B35', '#4C6FFF', '#22C55E', '#FFB800', '#FF9A3C']
 
@@ -71,13 +72,15 @@ export function Celebration({
       <div className="celebrate-card" onClick={(e) => e.stopPropagation()}>
         {broken ? (
           <>
-            <div style={{ fontSize: 60, lineHeight: 1 }}>🌤️</div>
+            <IconCloudySun style={{ width: 62, height: 62, color: 'var(--secondary)' }} />
             <h1>Si riparte da 1</h1>
             <p>Hai saltato qualche giorno. Nessun dramma, la faccia ce l’hai ancora.</p>
           </>
         ) : (
           <>
-            <div className="flame-big">{badge ? badge.emoji : '🔥'}</div>
+            <div className="flame-big">
+              {badge ? <BadgeIcon name={badge.icon} /> : <IconFlame />}
+            </div>
             <div className="counter">
               <CountUp from={streakBefore} to={streakAfter} />
             </div>

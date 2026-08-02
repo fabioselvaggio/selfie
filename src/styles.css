@@ -39,6 +39,7 @@
   --card: #ffffff;
   /* Riempimento della scheda attiva nella barra in basso. */
   --tab-tint: #ffddcc;
+  --flame-core: #ffd9c7;
 
   --r-sm: 12px;
   --r-md: 16px;
@@ -46,6 +47,55 @@
   --r-frame: 28px;
 
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Più morbida della molla: per le cose che "scivolano" invece di rimbalzare. */
+  --liquid: cubic-bezier(0.32, 1.35, 0.5, 1);
+
+  /*
+   * Liquid Glass.
+   *
+   * Il vetro esiste solo se dietro ci passa qualcosa: applicarlo su un fondo
+   * piatto non si vede e costa comunque una passata di blur. Per questo sta
+   * solo sugli elementi che fluttuano sopra il contenuto — barra in basso,
+   * pastiglie in alto, testate dei pannelli — e non sulle schede statiche.
+   *
+   * La ricetta è tre strati: sfondo semitrasparente, sfocatura satura di ciò
+   * che sta dietro, e un filo di luce sul bordo superiore che simula lo
+   * spessore del materiale.
+   */
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(255, 255, 255, 0.76);
+  --glass-edge: rgba(255, 255, 255, 0.85);
+  --glass-blur: saturate(180%) blur(20px);
+  --glass-shadow:
+    0 10px 30px rgba(60, 40, 25, 0.13),
+    0 2px 8px rgba(60, 40, 25, 0.07);
+  --glass-inner: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/*
+ * Superficie di vetro riutilizzabile.
+ * Il fallback conta: senza backdrop-filter (Firefox con l'impostazione
+ * disattivata, WebView vecchie) un fondo al 58% di opacità diventa illeggibile,
+ * quindi lì si torna a un bianco quasi pieno.
+ */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: rgba(255, 255, 255, 0.95);
+  }
 }
 
 * {
@@ -134,6 +184,16 @@ body {
 }
 
 /*
+ * Le schermate principali scorrono SOTTO il vetro: la barra in basso e le
+ * pastiglie in alto fluttuano, quindi il contenuto deve lasciargli spazio ai
+ * due estremi, altrimenti l'ultimo bottone finisce sotto la barra.
+ */
+.shell > .screen {
+  padding-top: 62px;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+/*
  * Su schermi bassi la colonna comprimeva i figli invece di far scorrere: la
  * cornice 4:5 del selfie si schiacciava e la foto veniva fuori sbagliata.
  * In un contenitore che scorre i figli tengono la loro altezza naturale.
@@ -185,47 +245,111 @@ p {
 
 /* ------------------------------------------------------------- top bar */
 
+/* Pastiglie fluttuanti, non una barra piena: il contenuto scorre sotto. */
 .topbar {
+  position: absolute;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px 4px;
+  padding: 10px 16px;
   gap: 12px;
-  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.topbar > * {
+  pointer-events: auto;
 }
 
 .streak-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 20px;
+  gap: 5px;
+  font-size: 19px;
   font-weight: 900;
   color: var(--primary);
-  background: #fff1ea;
   border-radius: 999px;
-  padding: 6px 14px 6px 10px;
-  border: 2px solid #ffd9c7;
+  padding: 7px 15px 7px 11px;
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+  font-variant-numeric: tabular-nums;
+}
+
+.streak-chip svg {
+  width: 21px;
+  height: 21px;
 }
 
 .streak-chip.cold {
   color: var(--ink-faint);
-  background: var(--muted);
-  border-color: var(--muted-dark);
-  filter: grayscale(1);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .streak-chip {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
 }
 
 .icon-btn {
   border: none;
   background: transparent;
-  font-size: 22px;
+  color: var(--ink-soft);
   cursor: pointer;
-  padding: 6px;
-  border-radius: 12px;
-  line-height: 1;
+  padding: 8px;
+  border-radius: 999px;
+  line-height: 0;
+  display: grid;
+  place-items: center;
+  transition: transform 0.12s ease;
+}
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
 }
 
 .icon-btn:active {
-  background: var(--muted);
+  transform: scale(0.9);
+}
+
+.icon-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* Variante che fluttua sul contenuto e quindi ha bisogno del vetro sotto. */
+.icon-btn.glass {
+  color: var(--ink);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+  padding: 10px;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .icon-btn.glass {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+}
+
+/* Icona in linea con il testo: eredita colore e si allinea alla base. */
+.inline-icon {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.22em;
+  margin-right: 0.35em;
+  flex-shrink: 0;
+}
+
+.inline-icon.ok {
+  color: var(--success);
 }
 
 /* ------------------------------------------------------------- bottoni */
@@ -237,13 +361,18 @@ p {
   font-size: 16px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  border-radius: var(--r-md);
+  border-radius: 999px;
   padding: 15px 20px;
   cursor: pointer;
   width: 100%;
   color: #fff;
-  background: var(--primary);
-  box-shadow: 0 5px 0 var(--primary-dark);
+  background: linear-gradient(180deg, #ff8256, var(--primary));
+  box-shadow:
+    0 5px 0 var(--primary-dark),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition:
     transform 0.06s ease,
     box-shadow 0.06s ease,
@@ -279,10 +408,12 @@ p {
 }
 
 .btn.ghost {
-  background: #fff;
+  background: var(--glass-bg-strong);
   color: var(--ink-soft);
-  box-shadow: 0 5px 0 var(--muted-dark);
-  border: 2px solid var(--muted);
+  box-shadow:
+    0 5px 0 var(--muted-dark),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--glass-edge);
 }
 .btn.ghost:active:not(:disabled) {
   box-shadow: 0 0 0 var(--muted-dark);
@@ -302,8 +433,11 @@ p {
   font-size: 15px;
   color: var(--secondary);
   cursor: pointer;
-  padding: 10px;
+  padding: 12px 10px;
   width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-row {
@@ -440,52 +574,58 @@ p {
   margin-top: 2px;
 }
 
-/* ------------------------------------------------------------- settimana */
+/* ------------------------------------------------------------- oggi */
 
-.week {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+/*
+ * La schermata principale non scorre mai: `overflow: hidden` lo garantisce, e
+ * la cornice si adatta all'altezza rimasta invece di imporre la propria.
+ *
+ * Funziona perché la foto è già allineata dentro un rettangolo nero: mostrarla
+ * "contenuta" in un riquadro nero un po' più alto o un po' più basso aggiunge
+ * solo altro nero, e il viso resta esattamente dov'è. È l'unico punto dove
+ * conviene lasciare libero il rapporto della cornice.
+ */
+.screen.today {
+  overflow: hidden;
+  justify-content: center;
 }
 
-.week-cell {
+.today-hero {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.today-hero > .frame {
   display: flex;
   flex-direction: column;
+  max-height: 100%;
+}
+
+.today-hero .frame-photo,
+.today-hero .frame-empty {
+  flex: 1 1 auto;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.today-status,
+.today-actions {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.today-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.today-status h2 {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.week-dow {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-}
-
-.week-thumb {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  border-radius: 8px;
-  background: var(--muted);
-  overflow: hidden;
-  display: block;
-}
-
-.week-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.week-thumb.today {
-  outline: 3px solid var(--primary);
-  outline-offset: 2px;
 }
 
 /* ------------------------------------------------------------- calendario */
@@ -577,19 +717,64 @@ p {
 
 /* ------------------------------------------------------------- tab bar */
 
+/*
+ * Barra fluttuante in vetro: staccata dai bordi, con il contenuto che le passa
+ * sotto e si vede sfocato attraverso. È il motivo per cui la barra non è più un
+ * elemento del flusso ma galleggia in posizione assoluta.
+ */
 .tabbar {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 20;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  border-top: 2px solid var(--muted);
-  background: #fff;
-  flex-shrink: 0;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding: 7px;
+  border-radius: 26px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .tabbar {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tabbar {
+    background: rgba(255, 255, 255, 0.96);
+  }
+}
+
+/*
+ * La pastiglia scivola da una scheda all'altra invece di accendersi e
+ * spegnersi: è quel movimento a dare la sensazione di materiale liquido.
+ */
+.tab-pill {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 7px;
+  width: calc((100% - 14px) / 4);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 240, 232, 0.7));
+  box-shadow:
+    0 2px 8px rgba(255, 107, 53, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transition: transform 0.42s var(--liquid);
+  pointer-events: none;
 }
 
 .tab {
+  position: relative;
+  z-index: 1;
   border: none;
   background: none;
-  padding: 10px 4px 12px;
+  padding: 8px 2px 7px;
   font-family: inherit;
   font-size: 10px;
   font-weight: 800;
@@ -656,9 +841,25 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 12px 14px;
   flex-shrink: 0;
   gap: 10px;
+  z-index: 2;
+  background: var(--glass-bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 16px rgba(60, 40, 25, 0.06);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .sheet-head {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+}
+
+.sheet.dark .sheet-head {
+  background: rgba(10, 10, 10, 0.55);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
 .sheet.dark .sheet-head {
@@ -671,6 +872,16 @@ p {
   flex-direction: column;
   gap: 8px;
   flex-shrink: 0;
+  background: var(--glass-bg);
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 -4px 16px rgba(60, 40, 25, 0.06);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .sheet-foot {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
 }
 
 /* ------------------------------------------------------------- camera */
@@ -972,8 +1183,11 @@ input[type='range']::-moz-range-thumb {
   color: #fff;
   display: grid;
   place-items: center;
-  font-size: 13px;
-  font-weight: 900;
+}
+
+.import-cell .check svg {
+  width: 13px;
+  height: 13px;
 }
 
 .dropzone {
@@ -1017,14 +1231,20 @@ input[type='range']::-moz-range-thumb {
   box-shadow: 0 4px 0 var(--gold-dark);
 }
 
-.badge .emoji {
-  font-size: 30px;
-  line-height: 1;
+.badge-art {
+  line-height: 0;
+  color: var(--gold-dark);
 }
 
-.badge.off .emoji {
-  filter: grayscale(1);
-  opacity: 0.32;
+.badge-art svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.badge.off .badge-art {
+  color: var(--ink-faint);
+  opacity: 0.45;
 }
 
 .badge .n {
@@ -1057,10 +1277,27 @@ input[type='range']::-moz-range-thumb {
 }
 
 .flame-big {
-  font-size: 76px;
-  line-height: 1;
-  text-align: center;
+  line-height: 0;
+  display: flex;
+  justify-content: center;
+  color: var(--primary);
   animation: flicker 2.4s ease-in-out infinite;
+}
+
+.flame-big svg {
+  width: 76px;
+  height: 76px;
+}
+
+.flame-big.cold {
+  color: var(--ink-faint);
+  animation: none;
+}
+
+.next-badge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gold-dark);
 }
 
 @keyframes flicker {
@@ -1209,8 +1446,13 @@ input[type='time'] {
   background: linear-gradient(160deg, var(--primary), #ff9a3c);
   display: grid;
   place-items: center;
-  font-size: 18px;
   flex-shrink: 0;
+  color: #fff;
+}
+
+.notif .app-icon svg {
+  width: 19px;
+  height: 19px;
 }
 
 /* ------------------------------------------------------------- celebrazione */

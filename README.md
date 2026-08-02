@@ -106,7 +106,7 @@ misura si può fare solo su un archivio reale.
 
 ## Cosa c'è dentro
 
-- **Oggi** — la foto del giorno nella cornice, streak, striscia degli ultimi 7 giorni
+- **Oggi** — la foto del giorno nella cornice e basta: una schermata che non scorre mai, su nessun telefono
 - **Fotocamera** — guida live con ovale e linee di occhi/bocca, verde quando sei in posizione
 - **Allineamento** — prima/dopo animato, con i marker che si agganciano ai bersagli, metriche (rotazione, zoom, quanta cornice resta piena) e ritocco manuale
 - **Import dalla galleria** — data letta dall'EXIF, evidenzia i giorni mancanti, uno scatto per giorno
@@ -133,6 +133,41 @@ schermi bassi la cornice 4:5 si schiaccia invece di uscire dallo schermo.
 Il resto: `overscroll-behavior` per togliere il rimbalzo elastico ai bordi,
 `env(safe-area-inset-*)` per notch e barra Home, `100dvh` per la barra di Safari
 che compare e scompare.
+
+La schermata **Oggi** fa un passo in più: non scorre mai. Ha `overflow: hidden`
+e la cornice si adatta all'altezza rimasta invece di imporre la propria.
+Funziona perché la foto è già allineata dentro un rettangolo nero — mostrarla
+"contenuta" in un riquadro un po' più alto o più basso aggiunge solo altro nero,
+e il viso resta esattamente dov'è. Verificato da 320×568 a 430×932, con e senza
+la foto del giorno: zero pixel di scorrimento, barra sempre a schermo, bottone
+mai coperto.
+
+### Liquid Glass
+
+Il vetro sta solo dove serve: barra in basso, pastiglie in alto, testate e piedi
+dei pannelli. Cioè dove qualcosa scorre dietro — su un fondo piatto un
+`backdrop-filter` non si vede e la sfocatura la paghi comunque.
+
+La ricetta è tre strati: fondo semitrasparente, sfocatura satura di ciò che sta
+dietro, e un filo di luce sul bordo superiore che simula lo spessore del
+materiale. La barra in basso non è più nel flusso: galleggia staccata dai bordi,
+e il contenuto le passa sotto. Sotto la scheda scelta scivola una pastiglia — è
+quel movimento, più della trasparenza, a far sembrare il materiale liquido.
+
+C'è un `@supports` di riserva: senza `backdrop-filter` un fondo al 58% di
+opacità diventa illeggibile, quindi lì si torna a un bianco quasi pieno.
+
+### Icone
+
+Nessuna emoji, da nessuna parte: le disegna il sistema operativo, quindi
+cambiano forma fra iOS, Android e desktop, portano colori loro che litigano con
+la palette, e non si possono riempire o colorare in base allo stato — la barra
+in basso simulava la selezione con `grayscale` e opacità.
+
+`src/components/icons.tsx` ha tutto: griglia 24×24, tratto 2 con estremità
+arrotondate, `currentColor`. Un dettaglio che si paga caro se lo si sbaglia: le
+icone piene vanno disegnate **senza** contorno, perché con `stroke-linejoin:
+round` la punta si arrotonda e la fiamma dello streak diventa una goccia.
 
 ### Offline
 

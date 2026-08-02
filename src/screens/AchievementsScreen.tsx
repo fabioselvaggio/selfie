@@ -1,3 +1,4 @@
+import { BadgeIcon, IconFlame, IconLock, IconTrophy } from '../components/icons'
 import { BADGES, nextBadge } from '../lib/dates'
 import { useStore } from '../store'
 
@@ -10,8 +11,8 @@ export function AchievementsScreen() {
 
   return (
     <div className="screen">
-      <div className={streak.current > 0 ? 'flame-big' : 'flame-big'} style={{ filter: streak.current ? 'none' : 'grayscale(1)' }}>
-        🔥
+      <div className={streak.current > 0 ? 'flame-big' : 'flame-big cold'}>
+        <IconFlame active={streak.current > 0} />
       </div>
       <div className="center-col" style={{ marginTop: -8 }}>
         <div style={{ fontSize: 52, fontWeight: 900, lineHeight: 1, color: 'var(--primary)' }}>
@@ -28,8 +29,9 @@ export function AchievementsScreen() {
               <strong style={{ fontSize: 14 }}>
                 Ancora {Math.max(0, next.days - streak.current)} giorni
               </strong>
-              <span className="muted">
-                {next.emoji} {next.label}
+              <span className="muted next-badge">
+                <BadgeIcon name={next.icon} className="inline-icon" />
+                {next.label}
               </span>
             </div>
             <div className="progress">
@@ -38,7 +40,8 @@ export function AchievementsScreen() {
           </>
         ) : (
           <div className="center-col">
-            <strong>Li hai sbloccati tutti. 🏆</strong>
+            <IconTrophy style={{ width: 34, height: 34, color: 'var(--gold)' }} />
+            <strong>Li hai sbloccati tutti.</strong>
             <p>Un anno intero di facce. Adesso il video vale davvero la pena.</p>
           </div>
         )}
@@ -68,7 +71,9 @@ export function AchievementsScreen() {
             const on = b.days <= streak.best
             return (
               <div key={b.days} className={on ? 'badge on' : 'badge off'}>
-                <span className="emoji">{on ? b.emoji : '🔒'}</span>
+                <span className="badge-art">
+                  {on ? <BadgeIcon name={b.icon} /> : <IconLock />}
+                </span>
                 <span className="n">{b.days}</span>
                 <span className="t">{b.label}</span>
               </div>

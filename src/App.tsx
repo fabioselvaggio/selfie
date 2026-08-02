@@ -11,7 +11,14 @@ import { TimelapseScreen } from './screens/TimelapseScreen'
 import { AchievementsScreen } from './screens/AchievementsScreen'
 import { SettingsSheet } from './screens/SettingsSheet'
 import { Celebration } from './components/Celebration'
-import { IconBadges, IconCalendar, IconToday, IconVideo } from './components/TabIcons'
+import {
+  IconBadges,
+  IconCalendar,
+  IconFlame,
+  IconSettings,
+  IconToday,
+  IconVideo,
+} from './components/icons'
 import type { DayKey } from './lib/dates'
 
 type Tab = 'today' | 'calendar' | 'timelapse' | 'badges'
@@ -73,10 +80,15 @@ function Shell() {
     <div className="shell">
       <div className="topbar">
         <span className={streak.current > 0 ? 'streak-chip' : 'streak-chip cold'}>
-          🔥 {streak.current}
+          <IconFlame active={streak.current > 0} />
+          {streak.current}
         </span>
-        <button className="icon-btn" onClick={() => setOverlay({ kind: 'settings' })} aria-label="Impostazioni">
-          ⚙️
+        <button
+          className="icon-btn glass"
+          onClick={() => setOverlay({ kind: 'settings' })}
+          aria-label="Impostazioni"
+        >
+          <IconSettings />
         </button>
       </div>
 
@@ -84,7 +96,6 @@ function Shell() {
         <Today
           onShoot={() => setOverlay({ kind: 'camera' })}
           onImport={() => setOverlay({ kind: 'import' })}
-          onOpenDay={(day) => setOverlay({ kind: 'day', day })}
         />
       )}
       {tab === 'calendar' && <CalendarScreen onOpenDay={(day) => setOverlay({ kind: 'day', day })} />}
@@ -92,6 +103,13 @@ function Shell() {
       {tab === 'badges' && <AchievementsScreen />}
 
       <nav className="tabbar">
+        {/* La pastiglia scivola sotto la scheda scelta: è il movimento che dà
+            il senso di materiale liquido, invece di accendersi e spegnersi. */}
+        <span
+          className="tab-pill"
+          style={{ transform: `translateX(${TABS.findIndex((t) => t.id === tab) * 100}%)` }}
+          aria-hidden
+        />
         {TABS.map((t) => (
           <button
             key={t.id}

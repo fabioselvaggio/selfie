@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Frame } from '../components/Frame'
 import { formatLong, type DayKey } from '../lib/dates'
 import { useStore } from '../store'
+import { IconChevronLeft, IconChevronRight, IconClose, IconTrash } from '../components/icons'
 
 /**
  * Dettaglio di un giorno, con frecce per scorrere. Scorrere veloce qui è il
@@ -33,7 +34,7 @@ export function DaySheet({
     <div className="sheet">
       <div className="sheet-head">
         <button className="icon-btn" onClick={onClose} aria-label="Chiudi">
-          ✕
+          <IconClose />
         </button>
         <strong style={{ fontSize: 15 }}>{formatLong(day)}</strong>
         <button
@@ -45,7 +46,7 @@ export function DaySheet({
           }}
           aria-label="Elimina"
         >
-          🗑
+          <IconTrash />
         </button>
       </div>
 
@@ -59,7 +60,8 @@ export function DaySheet({
             disabled={!prev}
             style={{ flex: 1 }}
           >
-            ‹ Prec.
+            <IconChevronLeft className="inline-icon" />
+            Prec.
           </button>
           <button
             className="btn ghost"
@@ -67,7 +69,8 @@ export function DaySheet({
             disabled={!next}
             style={{ flex: 1 }}
           >
-            Succ. ›
+            Succ.
+            <IconChevronRight className="inline-icon" style={{ marginRight: 0, marginLeft: '0.35em' }} />
           </button>
         </div>
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { readCaptureDate } from '../lib/exif'
 import { formatDay, toDayKey, type DayKey } from '../lib/dates'
 import { useStore } from '../store'
+import { IconCheck, IconClose, IconGallery, IconTick } from '../components/icons'
 
 interface Candidate {
   id: string
@@ -119,7 +120,7 @@ export function ImportSheet({ onClose }: { onClose: () => void }) {
     <div className="sheet">
       <div className="sheet-head">
         <button className="icon-btn" onClick={onClose} aria-label="Chiudi">
-          ✕
+          <IconClose />
         </button>
         <strong style={{ fontSize: 15 }}>Importa dalla galleria</strong>
         <span style={{ width: 34 }} />
@@ -142,7 +143,7 @@ export function ImportSheet({ onClose }: { onClose: () => void }) {
                 void addFiles(e.dataTransfer.files)
               }}
             >
-              <div style={{ fontSize: 36 }}>🖼️</div>
+              <IconGallery style={{ width: 38, height: 38, color: 'var(--secondary)' }} />
               <h3 style={{ marginTop: 8 }}>Scegli le foto</h3>
               <p style={{ fontSize: 13 }}>
                 Leggo la data di scatto dai metadati e le metto nel giorno giusto.
@@ -174,7 +175,11 @@ export function ImportSheet({ onClose }: { onClose: () => void }) {
                       >
                         <img src={c.url} alt="" />
                         {isNew && <span className="missing-tag">manca</span>}
-                        {selected.has(c.id) && <span className="check">✓</span>}
+                        {selected.has(c.id) && (
+                          <span className="check">
+                            <IconTick />
+                          </span>
+                        )}
                         <span className="day-tag">
                           {formatDay(c.day)}
                           {c.dateSource === 'file' ? ' ~' : ''}
@@ -218,7 +223,7 @@ export function ImportSheet({ onClose }: { onClose: () => void }) {
         <>
           <div className="screen" style={{ justifyContent: 'center' }}>
             <div className="center-col">
-              <div style={{ fontSize: 56 }}>📥</div>
+              <IconCheck style={{ width: 56, height: 56, color: 'var(--success)' }} />
               <h1>
                 {outcome.saved} {outcome.saved === 1 ? 'foto importata' : 'foto importate'}
               </h1>

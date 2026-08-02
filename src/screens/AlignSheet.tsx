@@ -13,6 +13,7 @@ import {
 import { canvasToBlob, loadImage } from '../lib/image'
 import { formatDay } from '../lib/dates'
 import type { PendingShot } from '../store'
+import { IconClose, IconRetry } from '../components/icons'
 
 /** Similarità → (scala, angolo, traslazione), per poterle interpolare. */
 function decompose(m: Matrix) {
@@ -193,8 +194,8 @@ export function AlignSheet({
     return (
       <div className="sheet">
         <div className="sheet-head">
-          <button className="icon-btn" onClick={onCancel}>
-            ✕
+          <button className="icon-btn" onClick={onCancel} aria-label="Chiudi">
+            <IconClose />
           </button>
           <strong style={{ fontSize: 15 }}>Allineamento</strong>
           <span style={{ width: 34 }} />
@@ -228,11 +229,11 @@ export function AlignSheet({
     <div className="sheet">
       <div className="sheet-head">
         <button className="icon-btn" onClick={onCancel} aria-label="Chiudi">
-          ✕
+          <IconClose />
         </button>
         <strong style={{ fontSize: 15 }}>{formatDay(shot.day)}</strong>
         <button className="icon-btn" onClick={play} aria-label="Rivedi animazione">
-          ↻
+          <IconRetry />
         </button>
       </div>
 
