@@ -108,10 +108,10 @@ let landmarkerPromise: Promise<FaceLandmarker> | null = null
 export function getLandmarker(): Promise<FaceLandmarker> {
   if (!landmarkerPromise) {
     landmarkerPromise = (async () => {
-      const fileset = await FilesetResolver.forVisionTasks('/mp/wasm')
+      const fileset = await FilesetResolver.forVisionTasks(`${import.meta.env.BASE_URL}mp/wasm`)
       const build = (delegate: 'GPU' | 'CPU') =>
         FaceLandmarker.createFromOptions(fileset, {
-          baseOptions: { modelAssetPath: '/mp/models/face_landmarker.task', delegate },
+          baseOptions: { modelAssetPath: `${import.meta.env.BASE_URL}mp/models/face_landmarker.task`, delegate },
           runningMode: 'IMAGE',
           numFaces: 1,
           minFaceDetectionConfidence: 0.3,

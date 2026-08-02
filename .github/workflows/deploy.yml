@@ -1,0 +1,60 @@
+name: Deploy su GitHub Pages
+
+on:
+  push:
+    branches: [claude/daily-selfie-alignment-app-y18sem, main]
+  workflow_dispatch:
+
+# Un solo deploy alla volta; le corse più vecchie in coda vengono annullate.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` lancia anche scripts/setup-assets.mjs, che copia il runtime wasm
+      # e scarica il modello MediaPipe in public/mp (non è nel repo, sono 25 MB).
+      - run: npm ci
+
+      - name: Verifica che gli asset MediaPipe ci siano
+        run: |
+          test -f public/mp/models/face_landmarker.task || { echo "Modello mancante"; exit 1; }
+          test -f public/mp/wasm/vision_wasm_internal.wasm || { echo "wasm mancante"; exit 1; }
+
+      # Su Pages l'app vive sotto /<nome-repo>/.
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      # enablement: true accende GitHub Pages da solo la prima volta,
+      # così non serve andare a mano nelle impostazioni del repo.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

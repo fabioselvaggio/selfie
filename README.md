@@ -6,6 +6,20 @@ Ogni foto viene portata dentro una cornice fissa 4:5 in modo che **occhi e bocca
 cadano sempre nello stesso punto**. Scorri i giorni e la faccia resta ferma
 mentre cambia tutto il resto: la luce, i capelli, lo sfondo, tu.
 
+## Aprila
+
+**→ https://fabioselvaggio.github.io/selfie/**
+
+Aprila dal telefono e aggiungila alla schermata Home: parte a tutto schermo,
+senza barre del browser, come un'app vera.
+
+- **iPhone** — Safari → tasto Condividi → *Aggiungi a Home*
+- **Android** — Chrome → menu ⋮ → *Installa app*
+
+Al primo avvio scarica ~4 MB di modello per il riconoscimento del viso, poi
+funziona anche offline. Le foto restano sul telefono: non passano da nessun
+server, nemmeno il mio.
+
 ![prova dell'allineamento](docs/alignment-proof.jpg)
 
 Sopra: la stessa foto inquadrata male in cinque modi diversi. Sotto: dopo
