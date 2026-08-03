@@ -11,8 +11,9 @@ const SPEEDS = [
   { label: 'Veloce', fps: 16 },
 ]
 
-/** Altezza della fascia con la data sotto la foto. */
-const STRIP_H = 150
+/** Fascia con la data sotto la foto, proporzionale alla cornice. */
+const STRIP_H = Math.round(FRAME_W / 6)
+const DATE_FONT = Math.round(FRAME_W * 0.076)
 
 export function TimelapseScreen() {
   const { photos, settings, today } = useStore()
@@ -74,7 +75,7 @@ export function TimelapseScreen() {
 
       if (showDate) {
         ctx.fillStyle = '#fff'
-        ctx.font = '900 68px Nunito, system-ui, sans-serif'
+        ctx.font = `900 ${DATE_FONT}px Nunito, system-ui, sans-serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillText(formatDay(photo.day), FRAME_W / 2, FRAME_H + STRIP_H / 2)

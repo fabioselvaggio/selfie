@@ -25,9 +25,15 @@ import { downscaleFor } from './image'
 /** Rapporto della cornice: 4:5 verticale, come nel riferimento. */
 export const FRAME_RATIO = 4 / 5
 
-/** Risoluzione di lavoro della cornice (px). */
-export const FRAME_W = 900
-export const FRAME_H = Math.round(FRAME_W / FRAME_RATIO) // 1125
+/**
+ * Risoluzione di lavoro della cornice (px).
+ *
+ * 1200 e non 900: su un telefono da 390pt con schermo 3x la cornice occupa
+ * ~1110px fisici, quindi a 900 l'immagine veniva comunque ringrandita e si
+ * vedeva. Con 1200 c'è margine anche sui display più fitti.
+ */
+export const FRAME_W = 1200
+export const FRAME_H = Math.round(FRAME_W / FRAME_RATIO) // 1500
 
 /**
  * Distanza interpupillare di destinazione, come frazione della larghezza cornice.

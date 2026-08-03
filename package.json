@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "verify:alignment": "node scripts/verify-alignment.mjs",
-    "demo": "node scripts/seed-and-shoot.mjs"
+    "demo": "node scripts/seed-and-shoot.mjs",
+    "verify:sharpness": "node scripts/verify-sharpness.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.18",

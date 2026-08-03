@@ -23,6 +23,15 @@ export function loadImage(src: Blob | string): Promise<HTMLImageElement> {
  * `drawImage` con un fattore di riduzione forte (tipo 5x) fa aliasing brutto:
  * campiona pochi pixel e i capelli diventano un pettine. Dimezzare a più riprese
  * è il modo standard per ottenere un downscale pulito.
+ *
+ * La condizione del ciclo è la parte delicata. Quello che deve restare sopra
+ * 0.5 è la riduzione ANCORA DA FARE, cioè `wantedScale / factor`: `factor` è
+ * quanto abbiamo già rimpicciolito, quindi dividendo si ottiene il fattore che
+ * servirà a `drawImage` alla fine. Moltiplicare invece di dividere fa un ciclo
+ * che non termina mai per conto suo — ogni giro rende la condizione più vera —
+ * e si ferma solo sul limite dei 64px: una foto da 12 MP finiva ridotta a
+ * un francobollo e poi ringrandita, cioè esattamente l'aspetto di una
+ * miniatura sgranata.
  */
 export function downscaleFor(
   src: CanvasImageSource,
@@ -36,7 +45,7 @@ export function downscaleFor(
   let h = srcH
 
   // Ci fermiamo quando la sorgente è al massimo 2x la dimensione che serve.
-  while (wantedScale * factor < 0.5 && w > 64 && h > 64) {
+  while (wantedScale / factor < 0.5 && w > 64 && h > 64) {
     const canvas = document.createElement('canvas')
     canvas.width = Math.max(1, Math.floor(w / 2))
     canvas.height = Math.max(1, Math.floor(h / 2))

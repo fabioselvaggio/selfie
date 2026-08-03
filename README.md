@@ -87,17 +87,37 @@ scostamento sistematico sposta tutti i fotogrammi allo stesso modo e resta
 invisibile. Quello che si vede nel timelapse è la **dispersione fra un giorno e
 l'altro**.
 
-Con i default (`mouthWeight 0.2`, alta precisione), su cornice 900×1125:
+Con i default (`mouthWeight 0.2`, alta precisione), su cornice 1200×1500:
 
 | misura | valore | in proporzione |
 |---|---|---|
-| σ centro occhi | 0,58 px | 0,06% della larghezza |
-| σ distanza interpupillare | 1,13 px | 0,7% |
-| σ angolo | 0,18° | — |
-| tempo per foto | ~350 ms | (~190 ms senza alta precisione) |
+| σ centro occhi | 0,71 px | 0,06% della larghezza |
+| σ distanza interpupillare | 1,62 px | 0,8% |
+| σ angolo | 0,17° | — |
+| tempo per foto | ~620 ms | (~340 ms senza alta precisione) |
 
 Le rotazioni applicate vengono annullate esattamente: −11° → +11,4°, +7° →
 −6,5°, e così via.
+
+### Nitidezza
+
+`npm run verify:sharpness` copre il caso che l'altro test non tocca: una foto da
+telefono vera, che deve rimpicciolire di 3-4 volte per entrare nella cornice. È
+lì che vive il downscale progressivo, ed è l'unico punto dove un errore non si
+vede da nessun'altra parte — con una sorgente piccola il ciclo non parte
+nemmeno e sembra tutto a posto.
+
+Misura la varianza del laplaciano sulla zona del viso e la confronta con un
+rendering di riferimento in una passata sola dalla sorgente intera: la nostra
+pipeline deve essere almeno altrettanto nitida.
+
+Serve per una ragione concreta. La condizione del ciclo di riduzione era
+`wantedScale * factor < 0.5` invece di `wantedScale / factor < 0.5`: quello che
+deve restare sopra 0.5 è la riduzione ANCORA DA FARE, e moltiplicando invece di
+dividere ogni giro rendeva la condizione più vera. Il ciclo non terminava mai da
+solo e si fermava solo sul limite dei 64px — una foto da 48 MP finiva ridotta a
+**45×60 pixel** e poi ringrandita, con la nitidezza al 4% del riferimento.
+Una miniatura sgranata, che è esattamente come appariva.
 
 **Limite del test, da tenere presente:** sono varianti sintetiche di una foto
 sola. Isolano la matematica, ma non dicono nulla su come si comporta il
