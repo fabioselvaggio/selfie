@@ -189,6 +189,24 @@ arrotondate, `currentColor`. Un dettaglio che si paga caro se lo si sbaglia: le
 icone piene vanno disegnate **senza** contorno, perché con `stroke-linejoin:
 round` la punta si arrotonda e la fiamma dello streak diventa una goccia.
 
+### Video esportato
+
+Due cose che non si possono dare per buone.
+
+`MediaRecorder.isTypeSupported` dichiara `video/mp4` supportato anche dove il
+muxer non funziona: la registrazione esce con zero byte, e il file si scarica,
+sembra a posto e non si apre. Quindi il formato viene **provato davvero** prima
+di usarlo.
+
+E la prova va fatta alla dimensione vera: un encoder H.264 software può
+cavarsela su un canvas da 64px e piantarsi a 1200×1700 — è successo
+esattamente questo, e un probe su canvas piccolo dava via libera a un formato
+che poi non registrava niente. Se anche così il file esce vuoto, si riprova con
+il formato successivo.
+
+L'ordine mette MP4 davanti a WebM: è l'unico che iOS accetta in Foto e che si
+può mandare a qualcuno senza che riceva un file che non si apre.
+
 ### Offline
 
 `public/sw.js` è un service worker scritto a mano — quattro regole, si leggono
@@ -270,6 +288,7 @@ iOS/Android:
   ML Kit su Android. La matematica in `faceAlign.ts` si porta pari pari: cambia
   solo da dove arrivano i tre punti.
 - **Notifiche vere** — qui il promemoria è solo un mockup dell'interfaccia.
-- **Export video** — `MediaRecorder` produce WebM, che iOS non ama. Su nativo si
-  usa `AVAssetWriter` per un MP4/H.264.
+- **Export video** — ora l'app prova prima MP4 (l'unico che iOS accetta in Foto)
+  e ripiega su WebM. Su nativo si userebbe `AVAssetWriter` direttamente, senza
+  dover indovinare cosa sa fare il browser.
 - **Backup** — vedi sopra.

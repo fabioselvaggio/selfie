@@ -77,6 +77,25 @@ export async function promptInstall(): Promise<boolean> {
   return outcome === 'accepted'
 }
 
+/**
+ * Chiede al browser di non buttare via i nostri dati.
+ *
+ * Senza questo, Safari cancella IndexedDB dopo qualche settimana di inattività
+ * e Chrome può farlo sotto pressione di spazio: un anno di selfie sparirebbe
+ * senza preavviso. Con l'app aggiunta alla schermata Home iOS concede il
+ * permesso senza chiedere nulla; da browser può rifiutare, e non c'è modo di
+ * insistere.
+ */
+export async function requestPersistentStorage(): Promise<boolean> {
+  if (!navigator.storage?.persist) return false
+  try {
+    if (await navigator.storage.persisted()) return true
+    return await navigator.storage.persist()
+  } catch {
+    return false
+  }
+}
+
 /** Registra il service worker. In sviluppo resta spento, darebbe fastidio all'HMR. */
 export function registerServiceWorker(): void {
   if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return

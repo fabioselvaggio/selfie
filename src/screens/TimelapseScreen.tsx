@@ -4,6 +4,7 @@ import { formatDay } from '../lib/dates'
 import { loadImage } from '../lib/image'
 import { useStore } from '../store'
 import { IconExport, IconPause, IconPlay, IconVideo } from '../components/icons'
+import { extensionFor, fallbacksAfter, pickVideoFormat, recordCanvas } from '../lib/recorder'
 
 const SPEEDS = [
   { label: 'Lento', fps: 4 },
@@ -14,6 +15,7 @@ const SPEEDS = [
 /** Fascia con la data sotto la foto, proporzionale alla cornice. */
 const STRIP_H = Math.round(FRAME_W / 6)
 const DATE_FONT = Math.round(FRAME_W * 0.076)
+
 
 export function TimelapseScreen() {
   const { photos, settings, today } = useStore()
@@ -28,7 +30,7 @@ export function TimelapseScreen() {
   const [index, setIndex] = useState(0)
   const [loaded, setLoaded] = useState(0)
   const [recording, setRecording] = useState(false)
-  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [video, setVideo] = useState<{ url: string; ext: string } | null>(null)
 
   const height = FRAME_H + (showDate ? STRIP_H : 0)
 
@@ -100,40 +102,32 @@ export function TimelapseScreen() {
     if (!canvas || photos.length === 0) return
     setRecording(true)
     setPlaying(false)
-    if (videoUrl) URL.revokeObjectURL(videoUrl)
-    setVideoUrl(null)
+    if (video) URL.revokeObjectURL(video.url)
+    setVideo(null)
 
-    const mime = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find((m) =>
-      MediaRecorder.isTypeSupported(m),
-    )
-    const stream = canvas.captureStream(30)
-    const chunks: Blob[] = []
-    const recorder = new MediaRecorder(
-      stream,
-      mime ? { mimeType: mime, videoBitsPerSecond: 8_000_000 } : undefined,
-    )
-    recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data)
-
-    const finished = new Promise<void>((resolve) => {
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: mime ?? 'video/webm' })
-        setVideoUrl(URL.createObjectURL(blob))
-        resolve()
-      }
-    })
-
-    recorder.start()
     const ms = 1000 / SPEEDS[speed].fps
-    for (let i = 0; i < photos.length; i++) {
-      setIndex(i)
-      drawFrame(i)
-      await new Promise((r) => setTimeout(r, ms))
+    /** Scorre la sequenza sul canvas mentre il recorder registra. */
+    const play = async () => {
+      for (let i = 0; i < photos.length; i++) {
+        setIndex(i)
+        drawFrame(i)
+        await new Promise((r) => setTimeout(r, ms))
+      }
+      // Un attimo in più, altrimenti l'ultimo fotogramma non entra nel file.
+      await new Promise((r) => setTimeout(r, 300))
     }
-    // Un attimo in più, altrimenti l'ultimo fotogramma può non entrare nel file.
-    await new Promise((r) => setTimeout(r, 300))
-    recorder.stop()
-    stream.getTracks().forEach((t) => t.stop())
-    await finished
+
+    const first = await pickVideoFormat(canvas.width, canvas.height)
+    let out = await recordCanvas(canvas, first, play)
+    // Rete di sicurezza: il probe può passare e la registrazione vera no.
+    for (const alt of out ? [] : fallbacksAfter(first)) {
+      out = await recordCanvas(canvas, alt, play)
+      if (out) break
+    }
+
+    if (out) {
+      setVideo({ url: URL.createObjectURL(out.blob), ext: extensionFor(out.mimeType) })
+    }
     setRecording(false)
   }
 
@@ -216,11 +210,11 @@ export function TimelapseScreen() {
         {recording ? 'Registro…' : 'Esporta video'}
       </button>
 
-      {videoUrl && (
+      {video && (
         <a
           className="btn success"
-          href={videoUrl}
-          download={`oggi-timelapse-${today}.webm`}
+          href={video.url}
+          download={`oggi-timelapse-${today}.${video.ext}`}
           style={{ textDecoration: 'none' }}
         >
           Scarica il video
