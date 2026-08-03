@@ -39,3 +39,13 @@ set_key NSPhotoLibraryUsageDescription \
   "Per importare selfie che hai già scattato e riempire i giorni mancanti."
 set_key NSPhotoLibraryAddUsageDescription \
   "Per salvare il video del timelapse nelle tue Foto."
+
+# Dichiarazione di conformità sull'esportazione. L'app usa solo HTTPS, che
+# rientra fra le eccezioni: senza questa chiave App Store Connect fa la stessa
+# domanda a ogni singolo caricamento.
+if "$PB" -c "Print :ITSAppUsesNonExemptEncryption" "$PLIST" >/dev/null 2>&1; then
+  "$PB" -c "Set :ITSAppUsesNonExemptEncryption false" "$PLIST"
+else
+  "$PB" -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST"
+fi
+echo "  ITSAppUsesNonExemptEncryption"

@@ -294,9 +294,13 @@ locali programmate, senza server), il salvataggio del video in Foto, e uno
 storage che iOS non svuota mai.
 
 L'app riconosce da sola dove gira (`src/lib/native.ts`): sul web ogni funzione
-nativa non fa niente, quindi il browser continua a funzionare identico. I
-dettagli — chiavi Info.plist, come funziona la programmazione dei promemoria,
-cosa verificare per primo sul dispositivo — stanno in **[docs/ios.md](docs/ios.md)**.
+nativa non fa niente, quindi il browser continua a funzionare identico.
+
+- **[docs/ios.md](docs/ios.md)** — setup, chiavi Info.plist, promemoria, cosa
+  verificare per primo sul dispositivo
+- **[docs/app-store.md](docs/app-store.md)** — la pubblicazione: iscrizione,
+  testi pronti, screenshot nella misura giusta, e i due motivi per cui potrebbero
+  rifiutarla
 
 ## Cosa manca ancora
 

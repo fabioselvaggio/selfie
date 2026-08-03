@@ -16,7 +16,8 @@
     "ios": "BASE_PATH=/ npm run build && npx cap sync ios && npm run ios:permissions && npx cap open ios",
     "ios:sync": "BASE_PATH=/ npm run build && npx cap sync ios && npm run ios:permissions",
     "ios:permissions": "bash scripts/ios-permissions.sh",
-    "ios:setup": "bash scripts/ios-setup.sh"
+    "ios:setup": "bash scripts/ios-setup.sh",
+    "appstore:shots": "node scripts/appstore-shots.mjs"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
@@ -37,6 +38,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "playwright": "^1.50.0"
   }
 }
