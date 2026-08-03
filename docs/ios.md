@@ -12,24 +12,21 @@ richiede Xcode, non c'è modo di aggirarlo.
 ## Prima volta
 
 ```bash
+brew install cocoapods   # se non ce l'hai già
 npm install
 npx cap add ios          # crea la cartella ios/ e installa i CocoaPods
 ```
 
-Poi aggiungi tre righe a `ios/App/App/Info.plist`. Sono le spiegazioni che iOS
-mostra quando chiede il permesso: senza, l'app viene rifiutata dalla review e
-crasha al primo accesso alla fotocamera.
+E basta. Le tre chiavi di `Info.plist` — le spiegazioni che iOS mostra quando
+chiede il permesso, senza le quali l'app crasha al primo accesso alla fotocamera
+e la review la rifiuta — le scrive `scripts/ios-permissions.sh`, che fa già
+parte di `npm run ios`:
 
-```xml
-<key>NSCameraUsageDescription</key>
-<string>Per scattare il selfie di oggi. Le foto restano sul tuo iPhone.</string>
-
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Per importare selfie che hai già scattato e riempire i giorni mancanti.</string>
-
-<key>NSPhotoLibraryAddUsageDescription</key>
-<string>Per salvare il video del timelapse nelle tue Foto.</string>
-```
+| chiave | serve per |
+|---|---|
+| `NSCameraUsageDescription` | scattare il selfie |
+| `NSPhotoLibraryUsageDescription` | importare dalla galleria |
+| `NSPhotoLibraryAddUsageDescription` | salvare il video in Foto |
 
 ## Ogni volta che vuoi provare
 

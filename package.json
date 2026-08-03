@@ -13,8 +13,9 @@
     "verify:alignment": "node scripts/verify-alignment.mjs",
     "demo": "node scripts/seed-and-shoot.mjs",
     "verify:sharpness": "node scripts/verify-sharpness.mjs",
-    "ios": "BASE_PATH=/ npm run build && npx cap sync ios && npx cap open ios",
-    "ios:sync": "BASE_PATH=/ npm run build && npx cap sync ios"
+    "ios": "BASE_PATH=/ npm run build && npx cap sync ios && npm run ios:permissions && npx cap open ios",
+    "ios:sync": "BASE_PATH=/ npm run build && npx cap sync ios && npm run ios:permissions",
+    "ios:permissions": "bash scripts/ios-permissions.sh"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
