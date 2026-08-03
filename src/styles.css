@@ -49,6 +49,20 @@
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   /* Più morbida della molla: per le cose che "scivolano" invece di rimbalzare. */
   --liquid: cubic-bezier(0.32, 1.35, 0.5, 1);
+  /* La curva dei pannelli di iOS: parte decisa e si posa, senza rimbalzo. */
+  --sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /*
+   * Distacco della barra dal fondo.
+   *
+   * Su iPhone `safe-area-inset-bottom` vale 34px, quindi sommarci altri 14
+   * spingeva la barra a 48px dal bordo: staccata il doppio rispetto alle app
+   * di sistema. Qui invece la zona sicura viene in gran parte riassorbita — la
+   * barra si posa appena sopra la barra Home — e sui dispositivi senza
+   * indicatore resta comunque un margine di 8px.
+   */
+  --tabbar-gap: max(8px, calc(env(safe-area-inset-bottom) - 12px));
+  --tabbar-h: 74px;
 
   /*
    * Liquid Glass.
@@ -190,7 +204,7 @@ body {
  */
 .shell > .screen {
   padding-top: 62px;
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--tabbar-h) + 14px + var(--tabbar-gap));
 }
 
 /*
@@ -726,7 +740,7 @@ p {
   position: absolute;
   left: 14px;
   right: 14px;
-  bottom: calc(14px + env(safe-area-inset-bottom));
+  bottom: var(--tabbar-gap);
   z-index: 20;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -823,7 +837,54 @@ p {
   overflow: hidden;
   /* I pannelli coprono tutto il guscio, quindi il notch se lo gestiscono da sé. */
   padding-top: env(safe-area-inset-top);
-  animation: slide-up 0.28s var(--spring);
+  /* Curva di iOS invece della molla: la molla faceva superare la posizione
+     finale e rientrare, e su un pannello a schermo intero si legge come uno
+     scatto, non come un movimento. */
+  animation: slide-up 0.4s var(--sheet-ease);
+}
+
+/*
+ * Variante "scheda": non copre tutto, lascia vedere una striscia dell'app in
+ * alto e si appoggia sopra con gli angoli arrotondati e la maniglia. È il
+ * pannello modale di iOS, e dice da solo che si chiude tirandolo giù.
+ * Serve per i pannelli che si guardano — non per i flussi a schermo intero
+ * come fotocamera e allineamento.
+ */
+/* NB: il nome non può essere `card` — esiste già come utility per le schede
+   dei contenuti, e finirebbe per applicare al pannello padding, bordo e ombra. */
+.sheet.modal {
+  top: 52px;
+  padding-top: 0;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -14px 44px rgba(30, 20, 10, 0.28);
+}
+
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 29;
+  background: rgba(20, 14, 10, 0.32);
+  animation: fade 0.3s ease;
+}
+
+/* La maniglia vive dentro la testata, non sopra: due superfici separate in cima
+   al pannello si leggerebbero come una scatola dentro l'altra. */
+.sheet.modal .sheet-head {
+  position: relative;
+  border-radius: 26px 26px 0 0;
+  padding-top: 20px;
+}
+
+.sheet.modal .sheet-head::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--muted-dark);
 }
 
 .sheet.dark {
@@ -1334,6 +1395,41 @@ input[type='range']::-moz-range-thumb {
   inset: 0;
   display: grid;
   place-items: center;
+}
+
+/* Il player parte fermo: serve dire che c'è qualcosa da avviare. */
+.player-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-edge);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding-left: 4px;
+  transition: transform 0.15s ease;
+}
+
+.player-play svg {
+  width: 30px;
+  height: 30px;
+}
+
+.player-play:active {
+  transform: scale(0.92);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .player-play {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
 }
 
 .seg {

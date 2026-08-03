@@ -21,7 +21,9 @@ export function TimelapseScreen() {
 
   const [speed, setSpeed] = useState(1)
   const [showDate, setShowDate] = useState(settings.showDateOnPhoto)
-  const [playing, setPlaying] = useState(true)
+  // Fermo all'apertura: arrivare su una schermata dove qualcosa già si muove
+  // toglie il controllo, e il primo fotogramma dice già tutto.
+  const [playing, setPlaying] = useState(false)
   const [index, setIndex] = useState(0)
   const [loaded, setLoaded] = useState(0)
   const [recording, setRecording] = useState(false)
@@ -156,10 +158,20 @@ export function TimelapseScreen() {
           style={{ aspectRatio: `${FRAME_W} / ${height}` }}
           onClick={() => setPlaying((p) => !p)}
         />
-        {loaded < photos.length && (
+        {loaded < photos.length ? (
           <div className="player-loading">
             <div className="spinner" />
           </div>
+        ) : (
+          !playing && (
+            <button
+              className="player-play"
+              onClick={() => setPlaying(true)}
+              aria-label="Riproduci"
+            >
+              <IconPlay />
+            </button>
+          )
         )}
       </div>
 

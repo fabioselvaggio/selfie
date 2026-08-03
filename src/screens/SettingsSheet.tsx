@@ -16,8 +16,10 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="sheet">
-      <div className="sheet-head">
+    <>
+      <div className="sheet-scrim" onClick={onClose} />
+      <div className="sheet modal">
+        <div className="sheet-head">
         <button className="icon-btn" onClick={onClose} aria-label="Chiudi">
           <IconClose />
         </button>
@@ -198,7 +200,8 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             Elimina tutto
           </button>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
