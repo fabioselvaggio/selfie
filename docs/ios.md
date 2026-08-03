@@ -12,12 +12,18 @@ richiede Xcode, non c'è modo di aggirarlo.
 ## Prima volta
 
 ```bash
-brew install cocoapods   # se non ce l'hai già
-npm install
-npx cap add ios          # crea la cartella ios/ e installa i CocoaPods
+npm run ios:setup
 ```
 
-E basta. Le tre chiavi di `Info.plist` — le spiegazioni che iOS mostra quando
+Un comando solo. Controlla l'ambiente (Xcode, licenza, CocoaPods) e si ferma con
+un messaggio preciso se manca qualcosa; poi installa le dipendenze, compila
+l'app web, crea il progetto iOS, genera icona e schermata di avvio, scrive le
+chiavi dei permessi, sincronizza e apre Xcode.
+
+Restano tre cose che richiedono il tuo account Apple e che nessuno script può
+fare al posto tuo: scegliere il team in *Signing & Capabilities*, premere play
+con l'iPhone collegato, e autorizzare il profilo dalle impostazioni del
+telefono. Le ristampa lo script stesso alla fine. Le tre chiavi di `Info.plist` — le spiegazioni che iOS mostra quando
 chiede il permesso, senza le quali l'app crasha al primo accesso alla fotocamera
 e la review la rifiuta — le scrive `scripts/ios-permissions.sh`, che fa già
 parte di `npm run ios`:

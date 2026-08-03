@@ -15,7 +15,8 @@
     "verify:sharpness": "node scripts/verify-sharpness.mjs",
     "ios": "BASE_PATH=/ npm run build && npx cap sync ios && npm run ios:permissions && npx cap open ios",
     "ios:sync": "BASE_PATH=/ npm run build && npx cap sync ios && npm run ios:permissions",
-    "ios:permissions": "bash scripts/ios-permissions.sh"
+    "ios:permissions": "bash scripts/ios-permissions.sh",
+    "ios:setup": "bash scripts/ios-setup.sh"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
