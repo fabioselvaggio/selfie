@@ -730,8 +730,10 @@ p {
   z-index: 20;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  padding: 7px;
-  border-radius: 26px;
+  padding: 7px 10px;
+  /* Capsula piena, come le barre fluttuanti di iOS: il raggio segue l'altezza
+     invece di essere un valore fisso che a occhio resta squadrato. */
+  border-radius: 999px;
   background: var(--glass-bg);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-shadow), var(--glass-inner);
@@ -756,11 +758,11 @@ p {
  */
 .tab-pill {
   position: absolute;
-  top: 7px;
-  bottom: 7px;
-  left: 7px;
-  width: calc((100% - 14px) / 4);
-  border-radius: 20px;
+  top: 6px;
+  bottom: 6px;
+  left: 10px;
+  width: calc((100% - 20px) / 4);
+  border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 240, 232, 0.7));
   box-shadow:
     0 2px 8px rgba(255, 107, 53, 0.18),
@@ -774,6 +776,7 @@ p {
   z-index: 1;
   border: none;
   background: none;
+  border-radius: 999px;
   padding: 8px 2px 7px;
   font-family: inherit;
   font-size: 10px;
@@ -1324,6 +1327,13 @@ input[type='range']::-moz-range-thumb {
   aspect-ratio: 4 / 5;
   border-radius: 18px;
   display: block;
+}
+
+.player-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
 }
 
 .seg {

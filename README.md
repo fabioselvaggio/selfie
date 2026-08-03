@@ -111,7 +111,7 @@ misura si può fare solo su un archivio reale.
 - **Allineamento** — prima/dopo animato, con i marker che si agganciano ai bersagli, metriche (rotazione, zoom, quanta cornice resta piena) e ritocco manuale
 - **Import dalla galleria** — data letta dall'EXIF, evidenzia i giorni mancanti, uno scatto per giorno
 - **Calendario** — mese per mese, miniature nelle cornici nere, streak / record / totale
-- **Timelapse** — riproduzione, confronto allineato ↔ grezzo, export WebM reale
+- **Timelapse** — riproduzione, velocità, export WebM reale
 - **Traguardi** — badge a 3, 7, 14, 30, 60, 100, 200, 365 giorni
 - **Impostazioni** — ora di fine giornata, peso della bocca, alta precisione, riallineamento di tutto l'archivio
 
