@@ -5,6 +5,7 @@ import { loadImage } from '../lib/image'
 import { useStore } from '../store'
 import { IconExport, IconPause, IconPlay, IconVideo } from '../components/icons'
 import { extensionFor, fallbacksAfter, pickVideoFormat, recordCanvas } from '../lib/recorder'
+import { isNative, shareVideo } from '../lib/native'
 
 const SPEEDS = [
   { label: 'Lento', fps: 4 },
@@ -30,7 +31,7 @@ export function TimelapseScreen() {
   const [index, setIndex] = useState(0)
   const [loaded, setLoaded] = useState(0)
   const [recording, setRecording] = useState(false)
-  const [video, setVideo] = useState<{ url: string; ext: string } | null>(null)
+  const [video, setVideo] = useState<{ url: string; ext: string; blob: Blob } | null>(null)
 
   const height = FRAME_H + (showDate ? STRIP_H : 0)
 
@@ -126,7 +127,11 @@ export function TimelapseScreen() {
     }
 
     if (out) {
-      setVideo({ url: URL.createObjectURL(out.blob), ext: extensionFor(out.mimeType) })
+      setVideo({
+        url: URL.createObjectURL(out.blob),
+        ext: extensionFor(out.mimeType),
+        blob: out.blob,
+      })
     }
     setRecording(false)
   }
@@ -210,16 +215,27 @@ export function TimelapseScreen() {
         {recording ? 'Registro…' : 'Esporta video'}
       </button>
 
-      {video && (
-        <a
-          className="btn success"
-          href={video.url}
-          download={`oggi-timelapse-${today}.${video.ext}`}
-          style={{ textDecoration: 'none' }}
-        >
-          Scarica il video
-        </a>
-      )}
+      {video &&
+        // In una webview nativa `download` non fa niente: il file finirebbe in
+        // un posto irraggiungibile. Lì si passa dal foglio di condivisione, che
+        // permette di salvarlo in Foto o mandarlo.
+        (isNative() ? (
+          <button
+            className="btn success"
+            onClick={() => void shareVideo(video.blob, `oggi-timelapse-${today}.${video.ext}`)}
+          >
+            Salva o condividi
+          </button>
+        ) : (
+          <a
+            className="btn success"
+            href={video.url}
+            download={`oggi-timelapse-${today}.${video.ext}`}
+            style={{ textDecoration: 'none' }}
+          >
+            Scarica il video
+          </a>
+        ))}
     </div>
   )
 }

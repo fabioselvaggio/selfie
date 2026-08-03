@@ -11,3 +11,6 @@ public/mp/
 
 # Artefatti di build TypeScript
 *.tsbuildinfo
+
+# Progetto iOS: lo rigenera `npx cap add ios` sul Mac, e contiene i CocoaPods.
+ios/

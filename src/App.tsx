@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { StoreProvider, useStore, type PendingShot } from './store'
 import { warmUpLandmarker } from './lib/faceAlign'
+import { onResume, syncReminders } from './lib/native'
 import { Today } from './screens/Today'
 import { CameraSheet } from './screens/CameraSheet'
 import { AlignSheet } from './screens/AlignSheet'
@@ -40,7 +41,7 @@ type Overlay =
   | { kind: 'align'; shot: PendingShot }
 
 function Shell() {
-  const { ready, streak, prepare, commit } = useStore()
+  const { ready, streak, prepare, commit, settings } = useStore()
   const [tab, setTab] = useState<Tab>('today')
   const [overlay, setOverlay] = useState<Overlay>({ kind: 'none' })
   const [party, setParty] = useState<{ before: number; after: number; broken: boolean } | null>(null)
@@ -48,6 +49,25 @@ function Shell() {
   useEffect(() => {
     warmUpLandmarker()
   }, [])
+
+  // I promemoria vengono riprogrammati quando cambiano le impostazioni, quando
+  // il selfie di oggi viene fatto, e a ogni ritorno in primo piano — è lì che
+  // si rinnova la finestra dei giorni programmati in anticipo.
+  useEffect(() => {
+    const sync = () =>
+      void syncReminders({
+        enabled: settings.reminderEnabled,
+        time: settings.reminderTime,
+        doneToday: streak.doneToday,
+        cutoffHour: settings.cutoffHour,
+      })
+    sync()
+    let off: (() => void) | undefined
+    void onResume(sync).then((fn) => {
+      off = fn
+    })
+    return () => off?.()
+  }, [settings.reminderEnabled, settings.reminderTime, settings.cutoffHour, streak.doneToday])
 
   const close = () => setOverlay({ kind: 'none' })
 

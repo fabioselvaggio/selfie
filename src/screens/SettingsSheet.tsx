@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../store'
 import { isIos, isStandalone, promptInstall, useCanInstall } from '../lib/pwa'
 import { IconCamera, IconClose } from '../components/icons'
+import { isNative } from '../lib/native'
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, updateSettings, realignAll, wipe, photos } = useStore()
@@ -70,7 +71,10 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           <div className="row">
             <div>
               <div className="row-label">Promemoria giornaliero</div>
-              <div className="row-sub">Una notifica se non hai ancora fatto il selfie.</div>
+              <div className="row-sub">
+                Una notifica se non hai ancora fatto il selfie.
+                {!isNative() && ' Nel browser resta solo un\u2019anteprima: le notifiche programmate arrivano con l\u2019app installata da App Store.'}
+              </div>
             </div>
             <button
               className={settings.reminderEnabled ? 'switch on' : 'switch'}

@@ -279,16 +279,28 @@ tutte le foto*).
 Rovescio della medaglia: se svuoti i dati del browser sparisce tutto. Un backup
 o un account sono la prima cosa da aggiungere se questa cosa diventa seria.
 
-## Da qui a un'app vera
+## Su iOS
 
-Questo è un prototipo web funzionante, non una app da store. Per portarla su
-iOS/Android:
+C'è un guscio [Capacitor](https://capacitorjs.com) pronto: stesso codice, stesse
+schermate, stesso MediaPipe. Sul Mac:
 
-- **Rilevamento nativo** — Vision (`VNDetectFaceLandmarksRequest`) su iOS,
-  ML Kit su Android. La matematica in `faceAlign.ts` si porta pari pari: cambia
-  solo da dove arrivano i tre punti.
-- **Notifiche vere** — qui il promemoria è solo un mockup dell'interfaccia.
-- **Export video** — ora l'app prova prima MP4 (l'unico che iOS accetta in Foto)
-  e ripiega su WebM. Su nativo si userebbe `AVAssetWriter` direttamente, senza
-  dover indovinare cosa sa fare il browser.
-- **Backup** — vedi sopra.
+```bash
+npx cap add ios     # una volta sola
+npm run ios         # compila, sincronizza e apre Xcode
+```
+
+Passando al nativo si guadagnano il **promemoria giornaliero vero** (notifiche
+locali programmate, senza server), il salvataggio del video in Foto, e uno
+storage che iOS non svuota mai.
+
+L'app riconosce da sola dove gira (`src/lib/native.ts`): sul web ogni funzione
+nativa non fa niente, quindi il browser continua a funzionare identico. I
+dettagli — chiavi Info.plist, come funziona la programmazione dei promemoria,
+cosa verificare per primo sul dispositivo — stanno in **[docs/ios.md](docs/ios.md)**.
+
+## Cosa manca ancora
+
+- **Backup.** Le foto vivono solo sul dispositivo. È la prima cosa da aggiungere
+  se questa cosa diventa seria.
+- **Android.** Il guscio Capacitor lo supporta già, manca solo `npx cap add android`
+  e una passata di prova.
