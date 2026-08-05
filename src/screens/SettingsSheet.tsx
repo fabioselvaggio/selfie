@@ -3,6 +3,7 @@ import { useStore } from '../store'
 import { isIos, isStandalone, promptInstall, useCanInstall } from '../lib/pwa'
 import { IconCamera, IconClose } from '../components/icons'
 import { isNative } from '../lib/native'
+import { detectionStats } from '../lib/faceAlign'
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, updateSettings, realignAll, wipe, photos } = useStore()
@@ -185,6 +186,24 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
               onClick={() => updateSettings({ showDateOnPhoto: !settings.showDateOnPhoto })}
               aria-label="Data sulla foto"
             />
+          </div>
+        </div>
+
+        <div className="muted">DIAGNOSTICA</div>
+        <div className="card">
+          <div className="row">
+            <div>
+              <div className="row-label">Rilevamento del viso</div>
+              <div className="row-sub">
+                Se qui leggi CPU invece di GPU, ogni rilevamento costa dieci volte tanto: è la
+                causa più probabile se la fotocamera risulta lenta.
+              </div>
+            </div>
+            <span className="mono" style={{ fontWeight: 900, fontSize: 13, textAlign: 'right' }}>
+              {detectionStats.delegate}
+              <br />
+              {detectionStats.samples ? `${Math.round(detectionStats.averageMs)} ms` : '—'}
+            </span>
           </div>
         </div>
 

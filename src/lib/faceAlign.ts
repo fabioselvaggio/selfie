@@ -108,6 +108,30 @@ export interface AlignOptions {
 let landmarkerPromise: Promise<FaceLandmarker> | null = null
 
 /**
+ * Diagnostica del rilevamento.
+ *
+ * Serve per una ragione pratica: se MediaPipe non riesce a usare la GPU e
+ * ripiega sulla CPU, ogni rilevamento passa da qualche decina di millisecondi a
+ * quasi un secondo, e l'app sembra rotta senza che si capisca perché. Questi
+ * due numeri, mostrati nelle impostazioni, trasformano "è lento" in qualcosa su
+ * cui si può intervenire.
+ */
+export const detectionStats = {
+  delegate: '—' as 'GPU' | 'CPU' | '—',
+  /** Media mobile del costo di un rilevamento, in ms. */
+  averageMs: 0,
+  samples: 0,
+}
+
+function recordDetection(ms: number) {
+  // Media mobile esponenziale: segue i cambiamenti senza tenere uno storico.
+  detectionStats.averageMs = detectionStats.samples
+    ? detectionStats.averageMs * 0.8 + ms * 0.2
+    : ms
+  detectionStats.samples++
+}
+
+/**
  * Carica il FaceLandmarker. wasm e modello sono serviti dal nostro dominio
  * (public/mp), quindi niente CDN esterna e funziona anche offline.
  */
@@ -126,7 +150,17 @@ export function getLandmarker(): Promise<FaceLandmarker> {
           outputFaceBlendshapes: false,
         })
       // Su macchine senza WebGL utilizzabile (o in headless) si ripiega su CPU.
-      return build('GPU').catch(() => build('CPU'))
+      return build('GPU')
+        .then((l) => {
+          detectionStats.delegate = 'GPU'
+          return l
+        })
+        .catch(() =>
+          build('CPU').then((l) => {
+            detectionStats.delegate = 'CPU'
+            return l
+          }),
+        )
     })().catch((err) => {
       landmarkerPromise = null
       throw err
@@ -135,11 +169,24 @@ export function getLandmarker(): Promise<FaceLandmarker> {
   return landmarkerPromise
 }
 
-/** Preriscalda il modello, così il primo scatto non aspetta i 4 MB di download. */
+/**
+ * Preriscalda il modello.
+ *
+ * Non basta crearlo: la prima inferenza compila il grafo e costa molto più
+ * delle successive. Facendola qui su un quadrato vuoto, quella lentezza cade
+ * all'avvio dell'app invece che sul primo scatto.
+ */
 export function warmUpLandmarker(): void {
-  void getLandmarker().catch(() => {
-    /* l'errore viene ri-sollevato al primo uso reale */
-  })
+  void getLandmarker()
+    .then((landmarker) => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 64
+      canvas.height = 64
+      landmarker.detect(canvas)
+    })
+    .catch(() => {
+      /* l'errore viene ri-sollevato al primo uso reale */
+    })
 }
 
 // ---------------------------------------------------------------- rilevamento
@@ -218,7 +265,9 @@ export async function detectFace(src: Source, refine = true): Promise<FaceGeomet
   const { w, h } = sourceSize(src)
   if (!w || !h) return null
 
+  const t0 = performance.now()
   const first = landmarker.detect(src as HTMLImageElement)
+  recordDetection(performance.now() - t0)
   const lm0 = first.faceLandmarks?.[0]
   if (!lm0) return null
   if (!refine) return toGeometry(lm0, w, h)
